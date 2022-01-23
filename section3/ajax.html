@@ -8,11 +8,14 @@
     <title>vue ajax test</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <button @click="getDogImage">画像を取得</button>
+      <img :src="dogImage" />
+    </div>
 
     <script>
       const url = "https://dog.ceo/api/breeds/image/random";
-      const option = {
+      const options = {
         methods: "get",
       };
       let app = new Vue({
@@ -23,10 +26,15 @@
           };
         },
         methods: {
-          async getData() {
-            await fetch(url, option).then((response) => response.json());
-            this.dogImage;
+          async getDogImage() {
+            const response = await fetch(url, options).then((response) =>
+              response.json()
+            );
+            this.dogImage = response.message;
           },
+        },
+        created() {
+          this.getDogImage();
         },
       });
     </script>
