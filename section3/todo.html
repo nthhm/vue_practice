@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.js"></script>
+    <title>TodoList practice</title>
+    <style>
+      ul {
+        list-style: none;
+      }
+      .done {
+        text-decoration: line-through;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <input type="text" v-model="newItem" />
+      <button @click.prevent="addItem">追加</button>
+
+      <input type="text" v-model="query">検索</input>
+
+      <ul>
+        <li v-for="(todo, index) in filteredList">
+          <input type="checkbox" v-model="todo.isDone" />
+          <span :class="{done: todo.isDone}">{{ todo.item }}</span>
+          <button @click="deleteItem(index)">削除</button>
+        </li>
+      </ul>
+    </div>
+    <!-- 仮想DOM -->
+
+    <script>
+      let app = new Vue({
+        el: "#app",
+        data() {
+          return {
+            newItem: "",
+            todos: [],
+            query: "",
+          };
+        },
+        methods: {
+          addItem() {
+            if (!this.newItem) return;
+            const todo = {
+              item: this.newItem,
+              isDone: false,
+            };
+            this.todos.push(todo);
+            this.newItem = "";
+          },
+          deleteItem(index) {
+            this.todos.splice(index, 1);
+          },
+        },
+        computed: {
+          filteredList() {
+            let self = this;
+            return this.todos.filter((todo) => {
+              // str.indexOf(文字列)で、文字が見つかれば0以上、見つからなければ-1が返ることを利用する
+              return todo.item.indexOf(self.query) != -1
+            });
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
