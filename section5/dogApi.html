@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <title>Vuetify practice</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/@mdi/font@5.5.55/css/materialdesignicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/vuetify@2.3.10/dist/vuetify.min.css"
+      rel="stylesheet"
+    />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui"
+    />
+    <style>
+      [v-cloak] {
+        display: none;
+      }
+      .red-b {
+        border: red 1px solid;
+      }
+      .blue-b {
+        border: blue 1px solid;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <!-- Vuetifyを使用するときはv-appが必須 -->
+      <v-app>
+        <!-- appプロップスを適用すると自動的にfixedになる -->
+        <v-app-bar app v-cloak> ヘッダー </v-app-bar>
+        <v-main>
+          <!-- v-containerにfluidをつけるとブラウザ幅によって要素幅も変化する -->
+          <v-container fluid>
+            <v-row>
+              <v-col
+                v-for="(dogType, index) in dogTypes"
+                :key="index"
+                cols="6"
+                md="4"
+              >
+                <v-btn @click.prevent="fetchDogImages(index)" color="cyan" dark>
+                  {{dogType}}
+                </v-btn>
+              </v-col>
+            </v-row>
+
+            <v-row v-show="isShow">
+              <v-col
+                v-for="(dogImage, index) in dogImages"
+                :key="index"
+                cols="12"
+                sm="6"
+                md="4"
+              >
+                <v-card>
+                  <v-img :src="dogImage"></v-img>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-main>
+        <v-footer> フッター </v-footer>
+      </v-app>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.3.10/dist/vuetify.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <script>
+      new Vue({
+        el: "#app",
+        vuetify: new Vuetify(),
+        data() {
+          return {
+            dogTypes: ["akita", "beagle", "pekinese", "pug"],
+            dogUrl: "",
+            dogImages: "",
+            isShow: false,
+          };
+        },
+        methods: {
+          async fetchDogImages(index) {
+            const that = this;
+            this.dogUrl = `https://dog.ceo/api/breed/${this.dogTypes[index]}/images`;
+            const response = await fetch(this.dogUrl, { method: "get" }).then(
+              (response) => {
+                if (response.ok) {
+                  that.isShow = true;
+                  return response.json();
+                }
+                throw new Error("error").catch((e) => console.log(e.message));
+              }
+            );
+            this.render(response);
+          },
+          render(response) {
+            if (response.message.length > 20) {
+              // 括弧内に対象のオブジェクトを入れてメソッドチェーンができる。その際は最後にバリューをつけてあげる必要がある
+              this.dogImages = _(response.message)
+                .shuffle()
+                .slice(0, 20)
+                .value();
+            } else {
+              this.dogImages = _.shuffle(response.message);
+            }
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
